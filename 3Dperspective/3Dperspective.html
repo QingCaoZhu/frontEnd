@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>日常作业</title>
+    <style>
+        #position {
+
+            background-color:slategray;
+        }
+        #scale {
+            position: absolute;
+            display: grid;
+            grid-template-columns: auto 10px;
+            grid-template-rows: auto 10px;
+            width: 760px;
+            height: 460px;
+            background-color: black;
+            
+        }
+        #container {
+            grid-column: 1/2;
+            grid-row: 1/2;
+            transform-style: preserve-3d;
+        }
+        #scaleCur {
+            grid-column: 2/3;
+            grid-row: 2/3;
+            background-color: black;
+            cursor: se-resize;
+        }
+        img {
+            display: block;
+            position: absolute;
+            transition: transform 2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #center {
+            transform: translateZ(300px);   
+            transition: transform 1s linear;
+        }
+    </style>
+</head>
+<body>
+    <div id="position">
+        <div id="scale">
+            <div id="container"></div>
+            <div id="scaleCur"></div>
+        </div>
+    </div>
+</body>
+<script>
+    window.onload=function(){
+        let scale = document.getElementById("scale");
+        let container = document.getElementById("container");
+        // 初始化图片
+        let init  = function () {
+            let containerWidth = container.clientWidth;
+            let containerHeight = container.clientHeight;
+            let imgiWidth = containerWidth/15;
+            let imgiHeight = containerHeight/15;
+            for(let i = 0; i < 225; i++) {
+                let col = i % 15; // 计算第i个<img>位于第几列
+                let row = Math.floor(i / 15);// 计算第i个<img>位于第几行
+                let imgi = document.createElement("img");
+                imgi.setAttribute("src", "./Desktop/1.jpg");
+                imgi.style.width = `${containerWidth}px`;
+                imgi.style.height = `${containerHeight}px`;
+                imgi.style.clipPath = `inset(${row*imgiHeight-1}px ${(14-col)*imgiWidth-1}px ${(14-row)*imgiHeight-1}px ${col*imgiWidth-1}px)`;
+                imgi.style.transformOrigin = `${col*imgiWidth-0.5*imgiWidth}px ${row*imgiHeight+0.5*imgiHeight}px 0px`;
+                container.appendChild(imgi);
+                if (i === 112) {
+                    imgi.id = "center";
+                    let center = document.getElementById("center");
+                    center.addEventListener("click",disapperFun);
+                }
+            }
+            // 消失事件
+            function disapperFun () {
+                center.style.transform = "translateZ(0px)";
+                let diappeer = setTimeout(function(){
+                    let imgs = document.getElementsByTagName("img");
+                    for (let j of imgs) {
+                        j.style.opacity = 0;
+                        let dire = Math.random() > 0.5 ? 1 : -1;
+                        j.style.transform = `rotate3d(0,0,1,${dire*Math.random()*180}deg) translateZ(-500px) skew(${Math.random()*80}deg,${Math.random()*80}deg)`;
+                    }
+                },1200);
+                return false;
+            }
+        }
+        init();
+        // 利用立即执行函数为container添加初始transform属性值，避免transformStr获取为空
+        (function() {
+            container.style.transform = "rotate3d(0,0,0,0deg) perspective(2000px)";
+        })();
+        // 拖拽缩放事件
+        scaleCur.onmousedown = function(event) {
+            event.stopPropagation();
+            let scaleWidth = scale.clientWidth;
+            let scaleHeight = scale.clientHeight;
+            let orignX = event.clientX;
+            let orignY = event.clientY;
+            document.onmousemove = function(event) {
+                let nowX = event.clientX;
+                let nowY = event.clientY;
+                scale.style.width = `${scaleWidth - (orignX - nowX)}px`;
+                scale.style.height = `${scaleHeight - (orignY - nowY)}px`;
+                container.innerHTML = "";//清空上一次创建的图片
+                init();//重新绘制图片
+            }
+            document.onmouseup = function(event) {
+                document.onmousemove = null;
+                document.onmouseup = null;
+            }
+            return false;
+        }
+        // 拖拽旋转事件
+        container.onmousedown = function(event) {
+            event.stopPropagation();
+            let transformStr = this.style.transform;
+            let re = /(?<=\()[\s\S]+(?=deg)/g; //正则匹配表达式，匹配transform中的rotate3d中的值
+            let m = transformStr.match(re)[0].split(",");
+            let [rotateX,rotateY,rotateZ,rotateAngle] = m;//保存元素初始rotate3d值
+            let orignX = event.clientX;
+            let orignY = event.clientY;
+            document.onmousemove = function(event) {
+                let nowX = event.clientX;
+                let nowY = event.clientY;
+                let x = orignY - nowY;
+                let y = nowX - orignX;       
+                let dec = Math.sqrt(Math.pow(y,2) + Math.pow(x,2));
+                container.style.transform = `rotate3d(${Number(rotateX)+x},${Number(rotateY)+y},0,${(Number(rotateAngle)+dec)%360}deg)`;
+            }
+            document.onmouseup = function () {
+                document.onmousemove = null;
+                document.onmouseup = null;
+            }
+            return false;//阻止浏览器默认事件
+        }
+    }
+</script>
+</html>

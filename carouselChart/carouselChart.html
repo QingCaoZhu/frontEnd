@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3d轮播图</title>
+    <style>
+        #container {
+            position: relative;
+            width: 1140px;
+            height: 400px;
+            background-color: darkgray;
+        }
+        #imgs {
+            position: absolute;
+            width: 100%;
+            height: 216px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            background-color: inherit;
+            transform-style: preserve-3d;
+            perspective: 50000px;
+        }
+        #larrow {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translate(0,-50%);
+            z-index: 99;
+            cursor: pointer;
+        }
+        #rarrow {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(0,-50%);
+            cursor: pointer;
+        }
+        #buttons {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translate(-50%,0);
+            height: 30px;
+            width: 120px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 0;
+        }
+        #imgs img {
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: auto;
+            width: 540px;
+            height: 216px;
+            transition: transform 1s ease-in-out;
+        }
+        .circle {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            opacity: 0.3;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <img id="larrow" src="./img/left.png">
+        <div id="imgs">
+            <img src="./img/1.jpg">
+            <img src="./img/2.jpg">
+            <img src="./img/3.jpg">
+            <img src="./img/4.jpg">
+            <img src="./img/5.jpg">
+            <img src="./img/6.jpg">
+        </div>
+        <img id="rarrow" src="./img/right.png">
+        <div id="buttons">
+            <span class="circle"></span>
+            <span class="circle"></span>
+            <span class="circle"></span>
+            <span class="circle"></span>
+            <span class="circle"></span>
+            <span class="circle"></span>
+        </div>
+    </div>
+</body>
+<script>
+    let imgs = document.getElementById("imgs").getElementsByTagName("img");
+    let spans = document.getElementById("buttons").getElementsByTagName("span");
+    let larrow = document.getElementById("larrow");
+    let rarrow = document.getElementById("rarrow");
+    let current = 3;
+    let autoPlayId;
+
+    // 初始化
+    (function () {
+        imgs[current].style.transform = "translate3d(0,0,12000px)";
+        imgs[current-1].style.transform = "translate3d(-300px,0,0)";
+        imgs[current+1].style.transform = "translate3d(300px,0,0)";
+        spans[current].style.opacity = 1;        
+    })();
+
+    // 自动播放
+    autoPlayId = setInterval(() => {
+        leftSlid();
+    },3000);
+
+
+    // 下排圆形按钮切换透明度
+    function autoSpan () {
+        Array.from(spans).forEach((span,index) => {
+            if (index === current) {
+                console.log(index,current);
+                span.style.opacity = 1;
+            } else {
+                span.style.opacity = 0.3;
+            }
+        });
+    }
+    // 下排圆形按钮绑定点击事件
+    function spanEve () {
+        Array.from(spans).forEach((span, index)=>{
+            span.onmousemove = function () {
+                clearInterval(autoPlayId);
+                this.onclick = function() {
+                    current = index;
+                    autoSpan();
+                    for(let img of imgs) {
+                        img.style.transform = `translate3d(0,0,0)`;
+                    }
+                    imgs[index].style.transform = `translate3d(0,0,12000px)`;
+                    imgs[(index-1+6)%6].style.transform = `translate3d(-300px,0,0)`;
+                    imgs[(index+1)%6].style.transform = `translate3d(300px,0,0)`;
+                }
+                this.onmouseout = function () {
+                    autoPlayId = setInterval(() => {
+                        leftSlid();
+                    },3000);
+                }
+            }
+            
+        });
+        return false;
+    }
+    spanEve();
+    // 点击左箭头，图片向右滑动
+    function rightSlid () {
+        imgs[current%6].style.transform = `translate3d(300px,0,0)`;
+        imgs[(current-1+6)%6].style.transform = `translate3d(0,0,12000px)`;
+        imgs[(current-2+6)%6].style.transform = `translate3d(-300px,0,0)`;
+        imgs[(current+1)%6].style.transform = `translate3d(0,0,0)`;
+        if (current == 0) {
+            current = 5
+        }else{
+            current -= 1;
+        }
+        autoSpan();
+        return false;
+    }
+    larrow.onmouseover = function () { // 鼠标移入清除定时器，移出后开启定时器
+        clearInterval(autoPlayId);
+        this.onclick = rightSlid;
+        this.onmouseout = function() {
+            autoPlayId = setInterval(() => {
+                leftSlid();
+            },3000);
+        }
+    }
+
+    // 点击右箭头，图片向左滑动
+    function leftSlid () {
+        imgs[current%6].style.transform = `translate3d(-300px,0,0)`;
+        imgs[(current-1+6)%6].style.transform = `translate3d(0,0,0)`;
+        imgs[(current+2)%6].style.transform = `translate3d(300px,0,0)`;
+        imgs[(current+1)%6].style.transform = `translate3d(0,0,12000px)`;
+        if (current == 5) {
+            current = 0
+        }else{
+            current += 1;
+        }
+        autoSpan();
+        return false;
+    }
+    rarrow.onmouseover = function () { // 鼠标移入清除定时器，移出后开启定时器
+        clearInterval(autoPlayId);
+        this.onclick = leftSlid;
+        this.onmouseout = function() {
+            autoPlayId = setInterval(() => {
+                leftSlid();
+            },3000);
+        }
+    }
+</script>
+</html>
