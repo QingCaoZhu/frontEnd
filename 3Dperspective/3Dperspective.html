@@ -62,7 +62,7 @@
                 let col = i % 15; // 计算第i个<img>位于第几列
                 let row = Math.floor(i / 15);// 计算第i个<img>位于第几行
                 let imgi = document.createElement("img");
-                imgi.setAttribute("src", "./Desktop/1.jpg");
+                imgi.setAttribute("src", "./img/1.jpg");
                 imgi.style.width = `${containerWidth}px`;
                 imgi.style.height = `${containerHeight}px`;
                 imgi.style.clipPath = `inset(${row*imgiHeight-1}px ${(14-col)*imgiWidth-1}px ${(14-row)*imgiHeight-1}px ${col*imgiWidth-1}px)`;
