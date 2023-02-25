@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模拟操作系统</title>
+</head>
+<body>
+  <div class="container">
+    <div class="icon" draggable="true"><img src="desktop/filefolder.png"/><input type="text" value="新建文件夹"></div>
+    <div class="icon" draggable="true"><img src="desktop/filefolder.png"/><input type="text" value="新建文件夹"></div>
+    <ul class="fileMenu">
+      <li>打开</li>
+      <li>复制</li>
+      <li>删除</li>
+      <li>重命名</li>
+    </ul>
+    <ul class="desktopMenu">
+      <li>新建文件夹</li>
+      <li>更改桌面背景</li>
+      <li>粘贴</li>
+      <li>排序方式</li>
+      <li>刷新</li>
+    </ul>
+  </div>
+</body>
+<script>
+  const body = document.getElementsByTagName('body')
+  let containers = document.getElementsByClassName('container')
+  let icons = document.getElementsByClassName('icon')
+  let imgs = document.getElementsByTagName('img')
+  let fileMenu = document.getElementsByClassName('fileMenu')
+  let desktopMenu = document.getElementsByClassName('desktopMenu')
+  let lis = document.getElementsByTagName('li')
+  let dragged
+  let ofx
+  let ofy
+  let backOrder = 0
+  let curFileFolder
+  // 右键菜单事件
+  document.oncontextmenu = (event) => {
+    event.preventDefault()
+    // 文件夹右键菜单
+    if (event.target.tagName === 'IMG') {
+      curFileFolder = event.target
+      fileMenu[0].style.display = 'block'
+      fileMenu[0].style.top = event.clientY + 'px'
+      fileMenu[0].style.left = event.clientX + 'px'
+    } else if (event.target.className.includes('container')) { // 桌面右键菜单事件
+      desktopMenu[0].style.display = 'block'
+      desktopMenu[0].style.top = event.clientY + 'px'
+      desktopMenu[0].style.left = event.clientX + 'px'
+    }
+  };
+  // 打开文件夹事件
+  const openFileFolder = (event) => {
+    let filefolder = document.createElement('div')
+    filefolder.classList.add('container')
+    filefolder.classList.add('filefolder')
+    body[0].appendChild(filefolder)
+  }
+  // 新建文件夹事件
+  const newFileFolder = (event) => {
+    let fileIcon = document.createElement('div')
+    fileIcon.classList.add('icon')
+    fileIcon.setAttribute('draggable', true)
+    let img = document.createElement('img')
+    img.src = "desktop/filefolder.png"
+    let input = document.createElement('input')
+    input.type = 'text'
+    input.value = '新建文件夹'
+    fileIcon.appendChild(img)
+    fileIcon.appendChild(input)
+    containers[0].appendChild(fileIcon)
+  }
+  // 删除文件夹事件
+  const delFileFolder = (event) => {
+    const parent = curFileFolder.parentElement
+    parent.remove()
+  }
+  // 单击文件夹事件
+  const focusFileFolder = (event) => {
+    const parent = event.target.parentElement
+    parent.classList.add('active')
+    event.stopPropagation();
+  }
+  // 拖拽开始事件
+  const drageStart = (event) => {
+    dragged = event.target.parentElement
+    ofx = event.offsetX
+    ofy = event.offsetY
+  }
+  // 拖拽结束事件
+  const drop = (event) => {
+    dragged.style.position = "absolute"
+    dragged.style.left = (event.clientX - ofx) + 'px'
+    dragged.style.top = (event.clientY - ofy) + 'px'
+  }
+  // 单击桌面事件
+  const removeFocus = (event) => {
+    if (!event.target.className.includes('container')) {
+      return
+    }
+    for (let i of icons) {
+      i.classList.remove('active')
+    }
+    fileMenu[0].style.display = 'none'
+    desktopMenu[0].style.display = 'none'
+  }
+  // 更改桌面背景事件
+  const changeBack = (event) => {
+    backOrder = (backOrder + 1) % 4
+    body[0].style.backgroundImage = `url(desktop/back${backOrder}.jpg)`
+    desktopMenu[0].style.display = 'none'
+  }
+  // 文件夹重命名
+  const rename = (event) => {
+    curFileFolder.nextSibling.focus()
+    curFileFolder.nextSibling.setSelectionRange(-1,-2,'backward')
+    fileMenu[0].style.display = 'none'
+  }
+
+  for (let i of imgs) {
+    i.addEventListener('dragstart', drageStart)
+    i.addEventListener('click', focusFileFolder)
+    i.addEventListener('dblclick', openFileFolder)
+
+  }
+  for (let c of containers) {
+    c.addEventListener('click', removeFocus)
+    c.addEventListener('drop', drop)
+  }
+  for (let l of lis) {
+    if (l.innerText == '打开') {
+      l.addEventListener('click', openFileFolder)
+    } else if (l.innerText == '新建文件夹') {
+      l.addEventListener('click', newFileFolder)
+    } else if (l.innerText == '删除') {
+      l.addEventListener('click', delFileFolder)
+    } else if (l.innerText == '更改桌面背景') {
+      l.addEventListener('click', changeBack)
+    } else if (l.innerText == '重命名') {
+      l.addEventListener('click', rename)
+    }
+  }
+
+</script>
+<style>
+  body {
+    background-image: url(desktop/back0.jpg);
+  }
+  .container {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+  }
+  div .icon {
+    box-sizing: border-box;
+    width: 130px;
+    height: 160px;
+    margin: 5px;
+  }
+  img {
+    width: 130px;
+    height: 130px;
+  }
+  .active img  {
+    border: 3px solid white;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+  input {
+    width: 130px;
+    text-align: center;
+    color: white;
+    border: none;
+    background-color: rgba(0, 0, 0, 0);
+  }
+  .active input  {
+    background-color: blue;
+  }
+  .filefolder {
+    width: 1000px;
+    height: 700px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-45%);
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 99;
+  }
+  .fileMenu, .desktopMenu {
+    list-style: none;
+    width: 200px;
+    height: 120px;
+    position: absolute;
+    display: none;
+    background-color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    padding: 5px 0;
+  }
+  .desktopMenu {
+    height: 148px;
+  }
+  li {
+    height: 30px;
+    line-height: 30px;
+    padding: 0 20px;
+  }
+  li:hover {
+    cursor: pointer;
+    background-color: blue;
+  }
+</style>
+</html>
