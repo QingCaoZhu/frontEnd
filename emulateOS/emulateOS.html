@@ -7,13 +7,18 @@
 </head>
 <body>
   <div class="container" onmouseup="clickEve()" ondragover="dragover()" ondrop="drop()">
-    <div class="icon" draggable="true"><img src="desktop/filefolder.png" ondblclick="openFileFolder()" ondragstart="dragStart()" /><input type="text" value="新建文件夹"></div>
-    <div class="icon" draggable="true"><img src="desktop/filefolder.png" ondblclick="openFileFolder()" ondragstart="dragStart()" /><input type="text" value="新建文件夹"></div>
+    <div class="icon" draggable="true"><img src="desktop/filefolder.png" ondblclick="openFileFolder()" ondragstart="dragStart()"><input type="text" value="新建文件夹"></div>
+    <div class="icon" draggable="true"><img src="desktop/filefolder.png" ondblclick="openFileFolder()" ondragstart="dragStart()"><input type="text" value="新建文件夹"></div>
+    <div class="icon" draggable="true"><img src="desktop/browser.svg" ondblclick="openBrowser()" ondragstart="dragStart()"><input type="text" value="浏览器"></div>
+    <div class="icon" draggable="true"><img src="desktop/trashBin.svg" ondblclick="getElementById('trash').style.display='block'" ondragstart="dragStart()"><input type="text" value="回收箱"></div>
+    <div id="trash" class="filefolder" style="display: none"><img class="close" src="desktop/close.svg" onclick="getElementById('trash').style.display='none'"></div>
   </div>
 </body>
 <script>
   const body = document.getElementsByTagName('body')
   let containers = document.getElementsByClassName('container')
+  let trash = document.getElementById("trash")
+  let copyedElem // 复制的对象
   let dragged
   let ofx
   let ofy
@@ -64,6 +69,9 @@
       menuItem1.addEventListener('click', changeBack)
       let menuItem2 = document.createElement('li')
       menuItem2.innerText = '粘贴'
+      menuItem2.addEventListener('click', () => {
+        containers[0].appendChild(copyedElem)
+      })
       let menuItem3 = document.createElement('li')
       menuItem3.innerText = '排序方式'
       let menuItem4 = document.createElement('li')
@@ -85,9 +93,14 @@
       menuItem0.addEventListener('click', openFileFolder)
       let menuItem1 = document.createElement('li')
       menuItem1.innerText = '复制'
+      menuItem1.addEventListener('click', () => {
+        copyedElem = e.target.parentElement.cloneNode(true)
+      })
       let menuItem2 = document.createElement('li')
       menuItem2.innerText = '删除'
-      menuItem2.addEventListener('click', delFileFolder)
+      menuItem2.addEventListener('click', () => {
+        trash.appendChild(curFileFolder.parentElement)
+      })
       let menuItem3 = document.createElement('li')
       menuItem3.innerText = '重命名'
       menuItem3.addEventListener('click', rename)
@@ -103,7 +116,6 @@
   }
   // 打开文件夹事件
   const openFileFolder = () => {
-    debugger
     let e = window.event
     let filefolder = containers[0].cloneNode()
     let img = document.createElement('img')
@@ -135,13 +147,12 @@
     e.target.parentNode.parentNode.appendChild(fileIcon)
     e.target.parentNode.style.display = 'none'
   }
-  // 删除文件夹事件
-  const delFileFolder = () => {
-    let e = window.event
-    const parent = curFileFolder.parentElement
-    parent.remove()
+
+  // 
+  const openBrowser = () => {
+    
   }
-  
+
   // 更改桌面背景事件
   const changeBack = () => {
     let e = window.event
@@ -187,7 +198,7 @@
     width: 100vw;
     height: 100vh;
   }
-  div .icon {
+  .icon, .trash {
     box-sizing: border-box;
     width: 130px;
     height: 160px;
@@ -196,6 +207,7 @@
   img {
     width: 130px;
     height: 130px;
+    border: 3px solid rgba(0, 0, 0, 0);
   }
   .active img  {
     border: 3px solid white;
