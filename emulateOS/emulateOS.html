@@ -6,18 +6,61 @@
   <title>模拟操作系统</title>
 </head>
 <body>
-  <div class="container" onmouseup="clickEve()" ondragover="dragover()" ondrop="drop()">
-    <div class="icon" draggable="true"><img src="desktop/filefolder.png" ondblclick="openFileFolder()" ondragstart="dragStart()"><input type="text" value="新建文件夹"></div>
-    <div class="icon" draggable="true"><img src="desktop/filefolder.png" ondblclick="openFileFolder()" ondragstart="dragStart()"><input type="text" value="新建文件夹"></div>
-    <div class="icon" draggable="true"><img src="desktop/browser.svg" ondblclick="openBrowser()" ondragstart="dragStart()"><input type="text" value="浏览器"></div>
-    <div class="icon" draggable="true"><img src="desktop/trashBin.svg" ondblclick="getElementById('trash').style.display='block'" ondragstart="dragStart()"><input type="text" value="回收箱"></div>
-    <div id="trash" class="filefolder" style="display: none"><img class="close" src="desktop/close.svg" onclick="getElementById('trash').style.display='none'"></div>
+  <div class="container" onmouseup="desktopEve()" ondragover="dragover()" ondrop="drop()">
+    <div class="icon" draggable="true" style="display: none;">
+      <img src="desktop/filefolder.png" onmouseup="filefolderEve()" ondblclick="openFileFolder()" ondragstart="dragStart()">
+      <input type="text" value="新建文件夹">
+      <ul class="fileMenu" style="display: none;">
+        <li onclick="openFileFolder()">打开</li>
+        <li onclick="copyFileFolder()">复制</li>
+        <li onclick="delFileFolder()">删除</li>
+        <li onclick="rename()">重命名</li>
+      </ul>
+    </div>
+    <div class="icon" draggable="true">
+      <img src="desktop/filefolder.png" onmouseup="filefolderEve()" ondblclick="openFileFolder()" ondragstart="dragStart()">
+      <input type="text" value="新建文件夹">
+      <ul class="fileMenu" style="display: none;">
+        <li onclick="openFileFolder()">打开</li>
+        <li onclick="copyFileFolder()">复制</li>
+        <li onclick="delFileFolder()">删除</li>
+        <li onclick="rename()">重命名</li>
+      </ul>
+    </div>
+    <div class="icon" draggable="true">
+      <img src="desktop/browser.svg" ondblclick="getElementById('browser').style.display='block'" ondragstart="dragStart()">
+      <input type="text" value="浏览器">
+    </div>
+    <div id="browser" class="filefolder" style="display: none;">
+      <input id="urlInput" style="width: 700px;" onkeydown="openBrowser()">
+      <button onclick="openBrowser()">前往</button>
+      <img class="close" src="Desktop/close.svg" onclick="getElementById('browser').style.display='none'">
+      <iframe id="iframe"></iframe>
+    </div>
+    <div class="icon" draggable="true">
+      <img src="desktop/trashBin.svg" ondblclick="getElementById('trash').style.display='block'" ondragstart="dragStart()">
+      <input type="text" value="回收箱">
+    </div>
+    <div id="trash" class="filefolder " style="display: none">
+      <img class="close" src="desktop/close.svg" onclick="getElementById('trash').style.display='none'">
+    </div>
+    <ul class="desktopMenu" style="display: none;">
+      <li onclick="newFileFolder()">新建文件夹</li>
+      <li onclick="changeBack()">更改桌面背景</li>
+      <li onclick="pasteFileFolder()">粘贴</li>
+      <li>排序方式</li>
+      <li onclick="location.reload()">刷新</li>
+    </ul>
   </div>
 </body>
 <script>
   const body = document.getElementsByTagName('body')
   let containers = document.getElementsByClassName('container')
   let trash = document.getElementById("trash")
+  let fileMenu = document.getElementsByClassName('fileMenu')
+  let desktopMenu = document.getElementsByClassName('desktopMenu')
+  let urlInput = document.getElementById('urlInput')
+
   let copyedElem // 复制的对象
   let dragged
   let ofx
@@ -29,25 +72,16 @@
     event.preventDefault()
   };
   // 所有点击事件
-  const clickEve = () => {
-    // debugger
-    let e = window.event
-    if (e.button == 0 && e.target.classList.contains('container')) { // 单击桌面
+  const desktopEve = () => {
+    let e = event || window.event
+    if (e.button == 0) { // 单击桌面
       for (let i of e.target.children) {
         if (i.classList.contains('icon')) {
           i.classList.remove('active')
-        } else if (i.classList.contains('fileMenu')) {
-          i.remove()
-        } else if (i.classList.contains('desktopMenu')) {
-          i.remove()
-        } else if (i.classList.contains('fileFolderMenu')) {
-          i.remove()
-        } else {
-          continue
         }
       }
-    } else if (e.button == 0 && e.target.parentNode.classList.contains('icon')) { // 单击文件夹
-      e.target.parentNode.classList.add('active')
+      fileMenu[0].style.display = 'none'
+      desktopMenu[0].style.display = 'none'
     } else if (e.button == 2 && e.target.classList.contains('filefolder')) { // 文件夹打开后右击
       let fileFolderMenu = document.createElement('ul')
       let menuItem0 = document.createElement('li')
@@ -60,63 +94,26 @@
       fileFolderMenu.style.left = e.offsetX + 'px'
       containers[1].appendChild(fileFolderMenu)
     } else if (e.button == 2 && e.target.classList.contains('container')) { // 右击桌面
-      let desktopMenu = document.createElement('ul')
-      let menuItem0 = document.createElement('li')
-      menuItem0.innerText = '新建文件夹'
-      menuItem0.addEventListener('click', newFileFolder)
-      let menuItem1 = document.createElement('li')
-      menuItem1.innerText = '更改桌面背景'
-      menuItem1.addEventListener('click', changeBack)
-      let menuItem2 = document.createElement('li')
-      menuItem2.innerText = '粘贴'
-      menuItem2.addEventListener('click', () => {
-        containers[0].appendChild(copyedElem)
-      })
-      let menuItem3 = document.createElement('li')
-      menuItem3.innerText = '排序方式'
-      let menuItem4 = document.createElement('li')
-      menuItem4.innerText = '刷新'
-      desktopMenu.appendChild(menuItem0)
-      desktopMenu.appendChild(menuItem1)
-      desktopMenu.appendChild(menuItem2)
-      desktopMenu.appendChild(menuItem3)
-      desktopMenu.appendChild(menuItem4)
-      desktopMenu.classList.add('desktopMenu')
-      desktopMenu.style.top = e.clientY + 'px'
-      desktopMenu.style.left = e.clientX + 'px'
-      containers[0].appendChild(desktopMenu)
-    } else if (e.button == 2 && e.target.parentNode.classList.contains('icon')) { // 右击文件夹
-      curFileFolder = e.target //记录当前对象
-      let fileMenu = document.createElement('ul')
-      let menuItem0 = document.createElement('li')
-      menuItem0.innerText = '打开'
-      menuItem0.addEventListener('click', openFileFolder)
-      let menuItem1 = document.createElement('li')
-      menuItem1.innerText = '复制'
-      menuItem1.addEventListener('click', () => {
-        copyedElem = e.target.parentElement.cloneNode(true)
-      })
-      let menuItem2 = document.createElement('li')
-      menuItem2.innerText = '删除'
-      menuItem2.addEventListener('click', () => {
-        trash.appendChild(curFileFolder.parentElement)
-      })
-      let menuItem3 = document.createElement('li')
-      menuItem3.innerText = '重命名'
-      menuItem3.addEventListener('click', rename)
-      fileMenu.appendChild(menuItem0)
-      fileMenu.appendChild(menuItem1)
-      fileMenu.appendChild(menuItem2)
-      fileMenu.appendChild(menuItem3)
-      fileMenu.classList.add('fileMenu')
-      fileMenu.style.top = e.clientY + 'px'
-      fileMenu.style.left = e.clientX + 'px'
-      containers[0].appendChild(fileMenu)   
-    } 
+      desktopMenu[0].style.display = 'block'
+      desktopMenu[0].style.top = e.offsetY + 'px'
+      desktopMenu[0].style.left = e.offsetX + 'px'
+    }
+  }
+  const filefolderEve = () => {
+    let e = event || window.event
+    if (e.button == 0) {
+      e.target.parentNode.classList.add('active')
+    } else if (e.button == 2) {
+      e.target.parentElement.children[2].style.display = 'block'
+      e.target.parentElement.children[2].style.top = e.clientY + 'px'
+      e.target.parentElement.children[2].style.left = e.clientX + 'px'
+    }
+    e.stopPropagation()
+    return false
   }
   // 打开文件夹事件
   const openFileFolder = () => {
-    let e = window.event
+    let e = event || window.event
     let filefolder = containers[0].cloneNode()
     let img = document.createElement('img')
     img.src = "desktop/close.svg"
@@ -127,45 +124,67 @@
     filefolder.appendChild(img)
     filefolder.classList.add('filefolder')
     body[0].appendChild(filefolder)
+    e.stopPropagation()
+    return false
+  }
+  // 复制文件夹
+  const copyFileFolder = () => {
+    let e = event || window.event
+    copyedElem = e.target.parentElement.parentElement.cloneNode(true)
+    e.stopPropagation()
+    return false
+  }
+  // 删除文件夹
+  const delFileFolder = () => {
+    let e = event || window.event
+    trash.appendChild(e.target.parentElement.parentElement)
+    e.target.parentElement.remove()
+    e.stopPropagation()
+    return false
+  }
+  // 文件夹重命名
+  const rename = () => {
+    let e = event || window.event
+    e.target.parentElement.parentElement.children[1].focus()
+    e.target.parentElement.parentElement.children[1].setSelectionRange(-1,-2,'backward')
+    e.target.parentNode.style.display = 'none'
+    e.stopPropagation()
+    return false
   }
   // 新建文件夹事件
   const newFileFolder = () => {
-    debugger
-    let e = window.event
-    let fileIcon = document.createElement('div')
-    fileIcon.classList.add('icon')
-    fileIcon.setAttribute('draggable', true)
-    let img = document.createElement('img')
-    img.src = "desktop/filefolder.png"
-    let input = document.createElement('input')
-    input.type = 'text'
-    input.value = '新建文件夹'
-    fileIcon.appendChild(img)
-    fileIcon.appendChild(input)
-    fileIcon.addEventListener('dblclick', openFileFolder)
-    fileIcon.addEventListener('dragstart', dragStart)
-    e.target.parentNode.parentNode.appendChild(fileIcon)
-    e.target.parentNode.style.display = 'none'
+    let e = event || window.event
+    let newItem = containers[0].children[0].cloneNode(true)
+    newItem.style.display = 'block'
+    e.target.parentElement.parentElement.appendChild(newItem)
+    e.target.parentElement.style.display = 'none'
+    e.stopPropagation()
+    return false
   }
-
-  // 
-  const openBrowser = () => {
-    
-  }
-
   // 更改桌面背景事件
   const changeBack = () => {
     let e = window.event
     backOrder = (backOrder + 1) % 4
     body[0].style.backgroundImage = `url(desktop/back${backOrder}.jpg)`
-    e.target.parentNode.style.display = 'none'
+    e.stopPropagation()
+    return false
   }
-  // 文件夹重命名
-  const rename = () => {
-    let e = window.event
-    curFileFolder.nextSibling.focus()
-    curFileFolder.nextSibling.setSelectionRange(-1,-2,'backward')
-    e.target.parentNode.style.display = 'none'
+  // 粘贴文件夹
+  const pasteFileFolder = () => {
+    let e = event || window.event
+    e.target.parentElement.parentElement.appendChild(copyedElem)
+    e.stopPropagation()
+    return false
+  }
+  // 打开网址
+  const openBrowser = () => {
+    let e = event || window.event
+    if (e.keyCode == 13 || e.button == 0) {
+      let i = document.getElementById('iframe')
+      i.setAttribute('src', urlInput.value)
+    }
+    e.stopPropagation()
+    return false
   }
   // 拖拽开始事件
   const dragStart = () => {
@@ -173,18 +192,21 @@
     dragged = e.target.parentElement
     ofx = e.offsetX
     ofy = e.offsetY
+    return false
   }
   // 拖拽过程事件
   const dragover = () => {
-    let e = window.event
+    let e = event || window.event
     e.preventDefault()
+    return false
   }
   // 拖拽结束事件
   const drop = () => {
-    let e = window.event
+    let e = event || window.event
     dragged.style.position = "absolute"
     dragged.style.left = (e.offsetX - ofx) + 'px'
     dragged.style.top = (e.offsetY - ofy) + 'px'
+    return false
   }
 </script>
 <style>
@@ -198,13 +220,13 @@
     width: 100vw;
     height: 100vh;
   }
-  .icon, .trash {
+  .icon {
     box-sizing: border-box;
     width: 130px;
     height: 160px;
     margin: 5px;
   }
-  img {
+  .icon img {
     width: 130px;
     height: 130px;
     border: 3px solid rgba(0, 0, 0, 0);
@@ -214,7 +236,7 @@
     border-radius: 3px;
     background-color: rgba(0, 0, 0, 0.3);
   }
-  input {
+  .icon input {
     width: 130px;
     text-align: center;
     color: white;
@@ -263,6 +285,14 @@
     height: 30px;
     padding: 5px;
     float: right;
+  }
+  #iframe {
+    width: 1000px;
+    height: 650px;
+    border: none;
+  }
+  #urlInput {
+    margin: 8px;
   }
 </style>
 </html>
