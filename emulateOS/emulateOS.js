@@ -1,7 +1,3 @@
-let body = document.getElementsByTagName('body')
-let containers = document.getElementsByClassName('container')
-let trash = document.getElementById("trash")
-let urlInput = document.getElementById('urlInput')
 let copyedElem // 复制的对象
 let dragged
 let ofx
@@ -12,7 +8,7 @@ let curFileFolder
 document.oncontextmenu = (event) => {
   event.preventDefault()
 };
-// 所有点击事件
+// 桌面点击事件
 const desktopEve = (event) => {
   let e = event || window.event
   let fileMenus = document.getElementsByClassName('fileMenu')
@@ -27,39 +23,54 @@ const desktopEve = (event) => {
       f.style.display = 'none'
     }
     desktopMenus[0].style.display = 'none'
-  } else if (e.button == 2 && e.target.classList.contains('filefolder')) { // 文件夹打开后右击
-    let fileFolderMenu = document.createElement('ul')
-    let menuItem0 = document.createElement('li')
-    menuItem0.innerText = '新建文件夹'
-    menuItem0.addEventListener('click', newFileFolder)
-    fileFolderMenu.appendChild(menuItem0)
-    fileFolderMenu.classList.add('fileFolderMenu')
-    fileFolderMenu.style.display = 'block'
-    fileFolderMenu.style.top = e.offsetY + 'px'
-    fileFolderMenu.style.left = e.offsetX + 'px'
-    containers[1].appendChild(fileFolderMenu)
-  } else if (e.button == 2 && e.target.classList.contains('container')) { // 右击桌面
+  } else if (e.button == 2) { // 右击桌面
     desktopMenus[0].style.display = 'block'
     desktopMenus[0].style.top = e.offsetY + 'px'
     desktopMenus[0].style.left = e.offsetX + 'px'
   }
+  e.stopPropagation()
+  return false
 }
-const filefolderEve = (event) => {
+// 文件夹图标点击事件
+const fileIconEve = (event) => {
   let e = event || window.event
   if (e.button == 0) {
     e.target.parentNode.classList.add('active')
   } else if (e.button == 2) {
     e.target.parentElement.children[2].style.display = 'block'
-    e.target.parentElement.children[2].style.top = e.clientY + 'px'
-    e.target.parentElement.children[2].style.left = e.clientX + 'px'
+    e.target.parentElement.children[2].style.top = e.offsetY + 'px'
+    e.target.parentElement.children[2].style.left = e.offsetX + 'px'
   }
   e.stopPropagation()
   return false
 }
-
+// 文件夹点击事件
+const filefolderEve = (event) => {
+  let e = event || window.event
+  if (e.button == 0) {
+    for (let i of e.target.children) {
+      if (i.classList.contains('icon')) {
+        i.classList.remove('active')
+      } else if (i.classList.contains('fileFolderMenu')) {
+        i.style.display = 'none'
+      }
+    }
+  } else if (e.button == 2) {
+    for (let i of e.target.children) {
+      if (i.classList.contains('fileFolderMenu')) {
+        i.style.display = 'block'
+        i.style.top = e.offsetY + 'px'
+        i.style.left = e.offsetX + 'px'
+      }
+    }
+  }
+  e.stopPropagation()
+  return false
+}
 // 更改桌面背景事件
 const changeBack = (event) => {
   let e = event || window.event
+  let body = document.getElementsByTagName('body')
   backOrder = (backOrder + 1) % 4
   body[0].style.backgroundImage = `url(desktop/back${backOrder}.jpg)`
   e.stopPropagation()
@@ -69,6 +80,7 @@ const changeBack = (event) => {
 // 打开网址
 const openBrowser = (event) => {
   let e = event || window.event
+  let urlInput = document.getElementById('urlInput')
   if (e.keyCode == 13 || e.button == 0) {
     let i = document.getElementById('iframe')
     i.setAttribute('src', urlInput.value)
@@ -101,16 +113,11 @@ const drop = (event) => {
 // 打开文件夹事件
 const openFileFolder = (event) => {
   let e = event || window.event
-  let filefolder = containers[0].cloneNode()
-  let img = document.createElement('img')
-  img.src = "desktop/close.svg"
-  img.classList.add('close')
-  img.addEventListener('click', (e) => {
-    e.target.parentNode.remove()
-  })
-  filefolder.appendChild(img)
-  filefolder.classList.add('filefolder')
-  body[0].appendChild(filefolder)
+  if (e.target.tagName == 'IMG') {
+    e.target.parentElement.nextElementSibling.style.display = 'block'
+  } else if (e.target.tagName == 'LI') {
+    e.target.parentElement.parentElement.nextElementSibling.style.display = 'block'
+  }
   e.stopPropagation()
   return false
 }
@@ -124,6 +131,7 @@ const copyFileFolder = (event) => {
 // 删除文件夹
 const delFileFolder = (event) => {
   let e = event || window.event
+  let trash = document.getElementById("trash")
   trash.appendChild(e.target.parentElement.parentElement)
   e.target.parentElement.remove()
   e.stopPropagation()
@@ -141,9 +149,12 @@ const renameFileFolder = (event) => {
 // 新建文件夹事件
 const newFileFolder = (event) => {
   let e = event || window.event
-  let newItem = containers[0].children[0].cloneNode(true)
-  newItem.style.display = 'block'
-  e.target.parentElement.parentElement.appendChild(newItem)
+  let containers = document.getElementsByClassName('container')
+  let newItem1 = containers[0].children[0].cloneNode(true)
+  let newItem2 = containers[0].children[1].cloneNode(true)
+  newItem1.style.display = 'block'
+  e.target.parentElement.parentElement.appendChild(newItem1)
+  e.target.parentElement.parentElement.appendChild(newItem2)
   e.target.parentElement.style.display = 'none'
   e.stopPropagation()
   return false

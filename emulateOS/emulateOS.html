@@ -9,7 +9,7 @@
   <div class="container" onmouseup="desktopEve()" ondragover="dragover()" ondrop="drop()">
     <!-- 隐藏文件夹 -->
     <div class="icon" draggable="true" style="display: none;">
-      <img src="desktop/filefolder.png" onmouseup="filefolderEve()" ondblclick="openFileFolder()" ondragstart="dragStart()">
+      <img src="desktop/filefolder.png" onmouseup="fileIconEve()" ondblclick="openFileFolder()" ondragstart="dragStart()">
       <input type="text" value="新建文件夹">
       <!-- 文件夹右键菜单 -->
       <ul class="fileMenu" style="display: none;">
@@ -19,15 +19,27 @@
         <li onclick="renameFileFolder()">重命名</li>
       </ul>
     </div>
+    <div class="container filefolder" style="display: none" onmouseup="filefolderEve()" ondragover="dragover()" ondrop="drop()">
+      <img class="close" src="desktop/close.svg" onclick="parentNode.style.display='none'">
+      <ul class="fileFolderMenu" style="display: none;">
+        <li onclick="newFileFolder()">新建文件夹</li>
+      </ul>
+    </div>
     <!-- 文件夹 -->
     <div class="icon" draggable="true">
-      <img src="desktop/filefolder.png" onmouseup="filefolderEve()" ondblclick="openFileFolder()" ondragstart="dragStart()">
+      <img src="desktop/filefolder.png" onmouseup="fileIconEve()" ondblclick="openFileFolder()" ondragstart="dragStart()">
       <input type="text" value="新建文件夹">
       <ul class="fileMenu" style="display: none;">
         <li onclick="openFileFolder()">打开</li>
         <li onclick="copyFileFolder()">复制</li>
         <li onclick="delFileFolder()">删除</li>
         <li onclick="renameFileFolder()">重命名</li>
+      </ul>
+    </div>
+    <div class="container filefolder" style="display: none" onmouseup="filefolderEve()" ondragover="dragover()" ondrop="drop()">
+      <img class="close" src="desktop/close.svg" onclick="parentNode.style.display='none'">
+      <ul class="fileFolderMenu" style="display: none;">
+        <li onclick="newFileFolder()">新建文件夹</li>
       </ul>
     </div>
     <!-- 浏览器 -->
@@ -38,7 +50,7 @@
     <div id="browser" class="filefolder" style="display: none;">
       <input id="urlInput" style="width: 700px;" onkeydown="openBrowser()">
       <button onclick="openBrowser()">前往</button>
-      <img class="close" src="Desktop/close.svg" onclick="getElementById('browser').style.display='none'">
+      <img class="close" src="Desktop/close.svg" onclick="parentNode.style.display='none'">
       <iframe id="iframe"></iframe>
     </div>
     <!-- 回收箱 -->
@@ -47,7 +59,7 @@
       <input type="text" value="回收箱">
     </div>
     <div id="trash" class="filefolder " style="display: none">
-      <img class="close" src="desktop/close.svg" onclick="getElementById('trash').style.display='none'">
+      <img class="close" src="desktop/close.svg" onclick="parentNode.style.display='none'">
     </div>
     <!-- 桌面右键菜单 -->
     <ul class="desktopMenu" style="display: none;">
