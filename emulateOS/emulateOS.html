@@ -44,18 +44,18 @@
     </div>
     <!-- 浏览器 -->
     <div class="icon" draggable="true">
-      <img src="desktop/browser.svg" ondblclick="getElementById('browser').style.display='block'" ondragstart="dragStart()">
+      <img src="desktop/browser.svg" onclick="parentNode.classList.add('active')" ondblclick="getElementById('browser').style.display='block'" ondragstart="dragStart()">
       <input type="text" value="浏览器">
     </div>
     <div id="browser" class="filefolder" style="display: none;">
-      <input id="urlInput" style="width: 700px;" onkeydown="openBrowser()">
+      <input id="urlInput" style="width: 880px; height: 20px;" onkeydown="openBrowser()">
       <button onclick="openBrowser()">前往</button>
       <img class="close" src="Desktop/close.svg" onclick="parentNode.style.display='none'">
       <iframe id="iframe"></iframe>
     </div>
     <!-- 回收箱 -->
     <div class="icon" draggable="true">
-      <img src="desktop/trashBin.svg" ondblclick="getElementById('trash').style.display='block'" ondragstart="dragStart()">
+      <img src="desktop/trashBin.svg" onclick="parentNode.classList.add('active')" ondblclick="getElementById('trash').style.display='block'" ondragstart="dragStart()">
       <input type="text" value="回收箱">
     </div>
     <div id="trash" class="filefolder " style="display: none">

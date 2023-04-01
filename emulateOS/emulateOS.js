@@ -38,8 +38,8 @@ const fileIconEve = (event) => {
     e.target.parentNode.classList.add('active')
   } else if (e.button == 2) {
     e.target.parentElement.children[2].style.display = 'block'
-    e.target.parentElement.children[2].style.top = e.offsetY + 'px'
-    e.target.parentElement.children[2].style.left = e.offsetX + 'px'
+    e.target.parentElement.children[2].style.top = e.clientY + 'px'
+    e.target.parentElement.children[2].style.left = e.clientX + 'px'
   }
   e.stopPropagation()
   return false
